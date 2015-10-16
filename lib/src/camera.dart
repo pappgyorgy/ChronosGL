@@ -1,8 +1,32 @@
 part of chronosgl;
 
 class Camera extends Spatial {
+  
+  Spatial parent;
+  Matrix4 tempMatrix = new Matrix4();
+  
   // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
   void getMVMatrix(Matrix4 mvMatrix, bool translate) {
+    
+    if(false&&parent!=null){
+      // FIXME: this code is broken...
+      tempMatrix.setElements(parent.transform);
+      //tempMatrix.transposeRotation();
+      //tempMatrix.copyPositionFrom( parent.transform );
+      //tempMatrix.invert();
+      //transform.transposeRotation();
+      //tempMatrix[12] = tempMatrix[12]; 
+      //tempMatrix[13] = -tempMatrix[13]; 
+      //tempMatrix[14] = -tempMatrix[14]; 
+      tempMatrix.multiplyWith( transform);
+      //transform.transposeRotation();
+      tempMatrix.toRotationMat(mvMatrix);
+      if (translate) {
+        mvMatrix.translateLocal(tempMatrix[12], tempMatrix[13], -tempMatrix[14]);
+      }
+      return;
+    }
+    
     transform.toRotationMat(mvMatrix); // why does this seem to be already inverted/transposed ?
     if (translate) {
       // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)

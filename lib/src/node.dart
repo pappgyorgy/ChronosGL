@@ -66,6 +66,7 @@ class Node extends Spatial {
     tempMatrix.setElements( transform);
     if( invert)
     {
+      //tempMatrix.transposeRotation();
       tempMatrix.invert();
       tempMatrix.copyPositionFrom( transform );
     }
