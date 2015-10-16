@@ -8,6 +8,7 @@ class Mesh extends Node {
   bool blend=false;
   int blend_sFactor = SRC_ALPHA;
   int blend_dFactor = ONE;
+  int blend_equation = FUNC_ADD;
   
   bool drawPoints;
   
@@ -102,6 +103,7 @@ class Mesh extends Node {
     if( blend) {
       gl.enable(BLEND);
       gl.blendFunc(blend_sFactor, blend_dFactor);
+      gl.blendEquation(blend_equation);
     }
     
     if(!depth) {

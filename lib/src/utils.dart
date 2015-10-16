@@ -6,6 +6,12 @@ class Utils
   RenderingContext gl;
   TextureCache textureCache;
   
+  final int ONE_MINUS_SRC_ALPHA = 0x0303;
+  final int ONE_MINUS_SRC_COLOR = 0x0301;
+  final int SRC_COLOR = 0x0300;
+  final int DST_COLOR = 0x0306;
+  final int SRC_ALPHA = 0x0302;
+
   Utils( this.chronosGL)
   {
     gl = chronosGL.getRenderingContext();
@@ -224,13 +230,14 @@ class Utils
     }
     MeshData md = new MeshData(vertices: vertices );
     
-    ShaderProgram pssp = chronosGL.programs['point_sprites'];
+    ShaderProgram pssp = chronosGL.blendPrograms['point_sprites'];
     if( pssp == null)
         pssp = chronosGL.createProgram( createPointSpritesShader());
     Mesh m= new Mesh( md, drawPoints:true, texture: texture);
     m.blend = true;
-    m.depth = false;
-    m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+    //m.depth = false;
+    m.blend_sFactor = SRC_ALPHA;  
+    m.blend_dFactor = ONE_MINUS_SRC_ALPHA;  
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();
     pssp.add( m);
   }

@@ -57,6 +57,7 @@ class ChronosGL
   RenderingContext gl;
   
   
+  Map<String, ShaderProgram> blendPrograms = new Map<String, ShaderProgram>();
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
   Map<String, AnimateCallback> animateCallbacks = new Map<String, AnimateCallback>();
@@ -209,6 +210,10 @@ class ChronosGL
     gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
     for( ShaderProgram prg in programs.values)
+    {
+      prg.draw(_pMatrix);
+    }
+    for( ShaderProgram prg in blendPrograms.values)
     {
       prg.draw(_pMatrix);
     }
