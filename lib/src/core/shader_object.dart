@@ -428,7 +428,11 @@ class ShaderObject {
 
     for (String v in varyingVars) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("${modifier} ${d.type} ${v};");
+      if(d.arraySize > 0){
+        out.add("${modifier} ${d.type} ${v}[${d.arraySize}];");
+      }else {
+        out.add("${modifier} ${d.type} ${v};");
+      }
     }
     for (String v in transformVars) {
       ShaderVarDesc d = _VarsDb[v];
