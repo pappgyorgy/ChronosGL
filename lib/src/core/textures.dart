@@ -90,6 +90,11 @@ final TextureProperties TexturePropertiesShadowMap = TextureProperties()
 final TextureProperties TexturePropertiesMipmap = TextureProperties()
   ..SetMipmapLinear();
 
+//TODO get the max anisotropicFilterLevel and use it here or if the ext is missing throw error
+final TextureProperties TexturePropertiesMipmapAnisotropic = TextureProperties()
+  ..SetMipmapLinear()
+  ..anisotropicFilterLevel = 16;
+
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {

@@ -4,6 +4,7 @@ library misc;
 import 'dart:typed_data';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
+import 'dart:web_gl';
 
 import 'package:vector_math/vector_math.dart' as VM;
 

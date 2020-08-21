@@ -56,19 +56,39 @@ float LinearizeDepth(float z, float near, float far) {
 */
 final ShaderObject shadowVertexShaderDepth = ShaderObject("ShadowMapV")
   ..AddAttributeVars([aPosition])
+  ..AddVaryingVars([vDepth])
   ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
   ..SetBody([
     """
+    
 void main() {
-    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
+    vec4 position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
                   vec4(${aPosition}, 1.0);
+    float zBuf = position.z / position.w;  // between -1 and 1
+    vDepth = 0.5 + (zBuf * 0.5);           // between 0 and 1
+
+    gl_Position = position;
 }
     """
   ]);
 
 final ShaderObject shadowFragmentShaderDepth =
 // What we care about here is the internal update of the depth buffer
-    ShaderObject("ShadowMapF")..SetBodyWithMain(["${oFragColor}.r = 1.0;"]);
+    ShaderObject("ShadowMapF")
+      ..AddVaryingVars([vDepth])
+      ..SetBody([
+      """
+    
+void main() {
+    float depth2 = pow(vDepth, 2.0);
+
+    float dx = dFdx(vDepth);
+    float dy = dFdy(vDepth);
+    float depth2Avg = depth2 + 0.25 * (dx*dx + dy*dy);
+
+    ${oFragColor} = vec4(vDepth, depth2Avg, 0.0, 0.0);
+}
+    """]);
 
 final ShaderObject visualizeShadowmapVertexShaderLinearDepth16 =
     ShaderObject("copyV")
@@ -97,13 +117,13 @@ void main() {
 class ShadowMap {
   // Other options for format:  GL_DEPTH_COMPONENT32F
   ShadowMap(this._cgl, int w, int h, double near, double far,
-      {int format = GL_DEPTH_COMPONENT24}) {
+      {int format = GL_DEPTH_COMPONENT32F}) {
     _mapSize = VM.Vector2(w + 0.0, h + 0.0);
     // We do not really need a proper frame buffer texture as we are only
     // concerned about updated the depth buffer.
     // TODO: is there a way to disable the framebuffer writes altogether?
     Texture dummy = TypedTexture(
-        _cgl, "frame::color", w, h, GL_RGBA8, TexturePropertiesFramebuffer);
+        _cgl, "frame::color", w, h, GL_RGBA32F, TexturePropertiesMipmapAnisotropic);
     _depthTexture = TypedTexture(
         _cgl, "frame::depth", w, h, format, TexturePropertiesShadowMap);
     _shadowBuffer = Framebuffer(_cgl, dummy, _depthTexture);
@@ -155,6 +175,7 @@ class ShadowMap {
   Scene _programVisualize;
 
   VM.Vector2 _mapSize;
+  VM.Matrix4 _proj;
 
   void SetVisualizationViewPort(int x, int y, int w, int h) {
     _phaseVisualize
@@ -162,6 +183,13 @@ class ShadowMap {
       ..viewPortY = y
       ..viewPortW = w
       ..viewPortH = h;
+  }
+
+  void setupProjectionMatrix(VM.Matrix4 projection){
+
+    if(this._uniforms.GetUniforms().containsKey("projMat")){
+
+    }
   }
 
   void AddShadowCaster(Node node) {
@@ -199,4 +227,8 @@ class ShadowMap {
   VM.Vector2 GetMapSize() => _mapSize;
 
   Texture GetMapTexture() => _depthTexture;
+
+  Framebuffer get shadowbuffer => this._shadowBuffer;
+
+  Texture get colorTexture => this._shadowBuffer.colorTexture;
 }

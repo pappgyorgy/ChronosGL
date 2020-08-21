@@ -71,7 +71,7 @@ class ChronosGL {
   }
 
   // either WebGL2RenderingContext' or 'RenderingContext2'
-  dynamic _gl;
+  WEBGL.RenderingContext2 _gl;
 
   final dynamic _canvas;
 
@@ -107,7 +107,7 @@ class ChronosGL {
 
   void GetArrayBuffer(WEBGL.Buffer buffer, List data) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
-    _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, data);
+    _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, Float32List.fromList(data));
   }
 
   void BufferDataSetSize(int kind, WEBGL.Buffer buf, int size, int usage) {
@@ -118,11 +118,30 @@ class ChronosGL {
 
   void GetTransformBuffer(WEBGL.Buffer buf, TypedData data) {
     _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buf);
-    _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer);
+    _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer as TypedData);
   }
 
   WEBGL.Buffer createBuffer() {
     return _gl.createBuffer();
+  }
+
+  WEBGL.Renderbuffer createRenderBuffer() {
+    return _gl.createRenderbuffer();
+  }
+
+  void renderbufferStorageMultisample(int target, int samples,
+      int internalformat, int width, int height) {
+    this._gl.renderbufferStorageMultisample(target, samples, internalformat, width, height);
+  }
+
+  void framebufferRenderbuffer(int target, int attachment,
+      int renderbuffertarget, WEBGL.Renderbuffer renderbuffer) {
+    this._gl.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+  }
+
+  void blitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0,
+      int dstY0, int dstX1, int dstY1, int mask, int filter){
+    this._gl.blitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
   }
 
   void ChangeElementArrayBuffer(WEBGL.Buffer buf, TypedData data) {
@@ -146,6 +165,10 @@ class ChronosGL {
 
   void bindBuffer(int kind, dynamic buffer) {
     _gl.bindBuffer(kind, buffer);
+  }
+
+  void bindRenderBuffer(int kind, dynamic buffer) {
+    return _gl.bindRenderbuffer(kind, buffer);
   }
 
   WEBGL.VertexArrayObject createVertexArray() {
@@ -264,6 +287,10 @@ class ChronosGL {
 
   void clear(int kind) {
     _gl.clear(kind);
+  }
+
+  void clearBufferfv(int buffer, int drawbuffer, dynamic value, [int srcOffset]){
+    this._gl.clearBufferfv(buffer, drawbuffer, value);
   }
 
   void setLineWidth(int w) {

@@ -119,7 +119,9 @@ class Framebuffer {
 
   ChronosGL _cgl;
 
-  dynamic /* gl Framebuffer */ _framebuffer;
+  WEBGL.Framebuffer get frameBuffer => this._framebuffer;
+
+  WEBGL.Framebuffer /* gl Framebuffer */ _framebuffer;
   Texture colorTexture;
   Texture depthTexture;
   Texture stencilTexture;

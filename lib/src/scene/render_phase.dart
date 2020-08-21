@@ -93,6 +93,22 @@ class RenderPhase extends NamedEntity {
     _scenes.add(s);
   }
 
+  void DrawWithoutFrameBufferActivation([List<DrawStats> stats]){
+    for (Scene scene in _scenes) {
+      if (!scene.enabled) continue;
+      if (!scene.program.enabled) continue;
+
+      List<UniformGroup> uniforms = scene.uniforms;
+      final UniformGroup transforms = UniformGroup("transforms");
+      uniforms.add(transforms);
+      final VM.Matrix4 modelMatrix = VM.Matrix4.identity();
+      for (Node node in scene.nodes) {
+        drawRecursively(scene.program, node, modelMatrix, stats, uniforms);
+      }
+      uniforms.removeLast();
+    }
+  }
+
   // Draw all scenes in order of registration
   void Draw([List<DrawStats> stats]) {
     _framebuffer.Activate(
